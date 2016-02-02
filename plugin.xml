@@ -46,7 +46,7 @@
 
         <source-file src="src/android/parse/Parse-1.10.1.jar" target-dir="libs" framework="true" />
         <source-file src="src/android/parse/bolts-android-1.2.1.jar" target-dir="libs" framework="true" />
-		<source-file src="src/android/parse/android-support-v4.jar" target-dir="libs" framework="true" />
+		    <framework src="com.android.support:support-v4:20.0.0" />
         <source-file src="src/android/ParsePushPlugin.java" target-dir="src/com/phonegap/parsepushplugin" />
         <source-file src="src/android/ParsePushPluginReceiver.java" target-dir="src/com/phonegap/parsepushplugin" />      
      </platform>

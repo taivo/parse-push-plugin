@@ -25,6 +25,7 @@ public class ParsePushPlugin extends CordovaPlugin {
     public static final String ACTION_SUBSCRIBE = "subscribe";
     public static final String ACTION_UNSUBSCRIBE = "unsubscribe";
     public static final String ACTION_REGISTER_CALLBACK = "registerCallback";
+    public static final String ACTION_RESET_BADGE = "resetBadge";
 
     private static CallbackContext gEventCallback = null;
 
@@ -59,6 +60,10 @@ public class ParsePushPlugin extends CordovaPlugin {
         }
         if (action.equals(ACTION_UNSUBSCRIBE)) {
             this.unsubscribe(args.getString(0), callbackContext);
+            return true;
+        }
+        if (action.equals(ACTION_RESET_BADGE)) {
+            ParsePushPluginReceiver.resetBadge(this.cordova.getActivity().getApplicationContext());
             return true;
         }
         return false;

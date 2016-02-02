@@ -59,7 +59,10 @@ var ParsePushPlugin = {
 
     unsubscribe: function(channel, successCb, errorCb) {
        cordova.exec(successCb, errorCb, serviceName, 'unsubscribe', [ channel ]);
-    }
+    },
+    resetBadge: function(successCb, errorCb) {
+        cordova.exec(successCb, errorCb, serviceName, 'resetBadge', []);
+    },
 };
 
 //

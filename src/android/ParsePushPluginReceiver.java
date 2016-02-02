@@ -9,6 +9,9 @@ import android.app.PendingIntent;
 import android.app.Notification;
 import android.app.NotificationManager;
 
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+
 import android.support.v4.app.NotificationCompat;
 
 import android.net.Uri;
@@ -16,6 +19,8 @@ import android.util.Log;
 
 import org.json.JSONObject;
 import org.json.JSONException;
+
+import java.util.List;
 
 
 public class ParsePushPluginReceiver extends ParsePushBroadcastReceiver
@@ -25,6 +30,7 @@ public class ParsePushPluginReceiver extends ParsePushBroadcastReceiver
 	public static final String RESOURCE_PUSH_ICON_COLOR = "parse_push_icon_color";
 	
 	private static JSONObject MSG_COUNTS = new JSONObject();
+    private static int badgeCount = 0;
 	
 	
 	@Override
@@ -42,6 +48,8 @@ public class ParsePushPluginReceiver extends ParsePushBroadcastReceiver
 			notifManager.notify(getNotificationTag(context, intent), 0, getNotification(context, intent));
 		}
 		
+        
+
 	    //
 	    // relay the push notification data to the javascript
 		ParsePushPlugin.jsCallback( getPushData(intent) );
@@ -82,6 +90,8 @@ public class ParsePushPluginReceiver extends ParsePushBroadcastReceiver
 	protected Notification getNotification(Context context, Intent intent){
 		JSONObject pnData = getPushData(intent);
 		String pnTag = getNotificationTag(context, pnData);
+
+        Log.d(LOGTAG, "onPushOpen - pnTag: " + pnData);
 		
 		Intent cIntent = new Intent(ACTION_PUSH_OPEN);
 		Intent dIntent = new Intent(ACTION_PUSH_DELETE);
@@ -108,6 +118,26 @@ public class ParsePushPluginReceiver extends ParsePushBroadcastReceiver
 		if (!ParsePushPlugin.isInForeground()) { 
 			builder.setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI);
 		}
+
+        if(pnData.has("badge")){
+            try {
+                if (pnData.getString("badge").equals("Increment")) {
+                    badgeCount += 1;
+                }
+            } catch (JSONException e) {
+                 Log.e(LOGTAG, "JSONException while parsing Increment:", e);
+            }
+
+            try {
+                if (pnData.getInt("badge") >= 0) {
+                    badgeCount = pnData.getInt("badge");
+                }
+            } catch (JSONException e) {
+                 Log.e(LOGTAG, "JSONException while parsing badge:", e);
+            }
+            
+            setBadge(context, badgeCount);
+        }
 		
 		builder.setSmallIcon(getSmallIconId(context, intent))
 		       .setLargeIcon(getLargeIcon(context, intent))
@@ -166,4 +196,62 @@ public class ParsePushPluginReceiver extends ParsePushBroadcastReceiver
             Log.e(LOGTAG, "JSONException while resetting pn count for tag: [" + pnTag + "]", e);
         }
 	}
+
+    /*
+     * Badge Counter methods. This will display badge counters on Samsung and Sony launchers.
+     */
+
+    public static void resetBadge(Context context) {
+        badgeCount = 0;
+        setBadgeSamsung(context, 0);
+        setBadgeSony(context, 0);
+    }
+    public static void setBadge(Context context, int count) {
+        setBadgeSamsung(context, count);
+        setBadgeSony(context, count);
+    }
+    public static void setBadgeSamsung(Context context, int count) {
+        String launcherClassName = getLauncherClassName(context);
+        if (launcherClassName == null) {
+            return;
+        }
+        Intent intent = new Intent("android.intent.action.BADGE_COUNT_UPDATE");
+        intent.putExtra("badge_count", count);
+        intent.putExtra("badge_count_package_name", context.getPackageName());
+        intent.putExtra("badge_count_class_name", launcherClassName);
+        context.sendBroadcast(intent);
+        Log.d("PushReceiver", "Samsung: "+context.getPackageName()+" "+launcherClassName);
+    }
+
+    public static void setBadgeSony(Context context, int count) {
+        String launcherClassName = getLauncherClassName(context);
+
+        Intent intent = new Intent();
+        intent.setAction("com.sonyericsson.home.action.UPDATE_BADGE");
+        intent.putExtra("com.sonyericsson.home.intent.extra.badge.ACTIVITY_NAME", launcherClassName);
+        intent.putExtra("com.sonyericsson.home.intent.extra.badge.SHOW_MESSAGE", count>0);
+        intent.putExtra("com.sonyericsson.home.intent.extra.badge.MESSAGE", ""+count);
+        intent.putExtra("com.sonyericsson.home.intent.extra.badge.PACKAGE_NAME", context.getPackageName());
+
+        context.sendBroadcast(intent);
+        Log.d("PushReceiver", "Sony: " + context.getPackageName() + " " + launcherClassName);
+    }
+
+    public static String getLauncherClassName(Context context) {
+
+        PackageManager pm = context.getPackageManager();
+
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+        List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
+        for (ResolveInfo resolveInfo : resolveInfos) {
+            String pkgName = resolveInfo.activityInfo.applicationInfo.packageName;
+            if (pkgName.equalsIgnoreCase(context.getPackageName())) {
+                String className = resolveInfo.activityInfo.name;
+                return className;
+            }
+        }
+        return null;
+    }
 }

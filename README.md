@@ -22,6 +22,7 @@ This plugin can handle cold start. It uses the following JS API to give access t
 * **getSubscriptions**( successCB, errorCB )
 * **subscribe**( channel, successCB, errorCB )
 * **unsubscribe**( channel, successCB, errorCB )
+* **resetBadge**( successCB, errorCB )
 
 ParsePushPlugin makes these notification events available: `openPN, receivePN, receivePN:customEvt`. 
 To handle notification events in JS, do this:

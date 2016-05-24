@@ -98,12 +98,15 @@ iOS: ... haven't tried yet but probably should be handled in `AppDelegate.didRec
 Installation
 ------------
 
+Read the [Parse server push guide](https://github.com/ParsePlatform/parse-server/wiki/Push) for an overview of the Push configuration.
+
 For both Android and iOS, run
 
 ```
-cordova plugin add https://github.com/taivo/parse-push-plugin
+cordova plugin add https://github.com/taivo/parse-push-plugin --variable GCM_SENDER_ID=1234256789
 ```
-
+To get your GCM sender ID, enable GCM for your Android project in the Google Developer Console. Take note of your
+project number. It should be a large integer like 123427208255. This project number is your GCM sender ID.
 
 ####Android Setup:
 Phonegap/Cordova doesn't define a custom `android.app.Application`, it only defines an android `Activity`. With an `Activity` alone,
@@ -119,13 +122,19 @@ e.g., `platforms/android/src/com/example/app`, create a file named MainApplicati
 
     import android.app.Application;
     import com.parse.Parse;
+    import com.parse.Parse.Configuration.Builder;
     import com.parse.ParseInstallation;
 
     public class MainApplication extends Application {
 	    @Override
         public void onCreate() {
             super.onCreate();
-            Parse.initialize(this, "YOUR_PARSE_APPID", "YOUR_PARSE_CLIENT_KEY");
+            Parse.initialize(new Parse.Configuration.Builder(this)
+                .applicationId("PARSE_APP_ID")
+                .clientKey(null)
+                .server("PARSE_SERVER_URL") // The trailing slash is important.
+                .build()
+            );
             ParseInstallation.getCurrentInstallation().saveInBackground();
         }
     }

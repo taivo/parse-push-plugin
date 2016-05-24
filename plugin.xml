@@ -5,6 +5,8 @@
     <description>Phonegap plugin for Parse.com push notification</description>
 	<keywords>cordova,phonegap,parse.com,parse push, push notification</keywords>
 	
+    <preference name="GCM_SENDER_ID" />
+
     <js-module src="www/parse-push-plugin.js" name="ParsePushPlugin">
         <clobbers target="ParsePushPlugin" />
     </js-module>
@@ -32,6 +34,7 @@
               <category android:name="$PACKAGE_NAME" />
             </intent-filter>
           </receiver>
+          <meta-data android:name="com.parse.push.gcm_sender_id" android:value="id:$GCM_SENDER_ID" />
         </config-file>
         <config-file target="AndroidManifest.xml" parent="/manifest">
           <uses-permission android:name="android.permission.INTERNET" />
@@ -44,9 +47,9 @@
           <uses-permission android:name="$PACKAGE_NAME.permission.C2D_MESSAGE" />
         </config-file>
 
-        <source-file src="src/android/parse/Parse-1.10.1.jar" target-dir="libs" framework="true" />
-        <source-file src="src/android/parse/bolts-android-1.2.1.jar" target-dir="libs" framework="true" />
-		<source-file src="src/android/parse/android-support-v4.jar" target-dir="libs" framework="true" />
+        <source-file src="src/android/parse/parse-android-1.13.0.jar" target-dir="libs" framework="true" />
+        <source-file src="src/android/parse/bolts-tasks-1.4.0.jar" target-dir="libs" framework="true" />
+        <source-file src="src/android/parse/android-support-v4.jar" target-dir="libs" framework="true" />
         <source-file src="src/android/ParsePushPlugin.java" target-dir="src/com/phonegap/parsepushplugin" />
         <source-file src="src/android/ParsePushPluginReceiver.java" target-dir="src/com/phonegap/parsepushplugin" />      
      </platform>

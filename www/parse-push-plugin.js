@@ -70,6 +70,10 @@ var ParsePushPlugin = {
    initialize: function(successCb, errorCb) {
       cordova.exec(successCb, errorCb, serviceName, 'initialize', []);
    },
+
+   resetBadge: function(successCb, errorCb) {
+      cordova.exec(successCb, errorCb, serviceName, 'resetBadge', []);
+   }
 };
 
 //

@@ -154,7 +154,6 @@ public class ParsePushPluginReceiver extends ParsePushBroadcastReceiver {
     if (mChannel == null) {
       mChannel = new NotificationChannel(DEFAULT_CHANNEL_ID, DEFAULT_CHANNEL_TITLE, importance);
       mChannel.enableVibration(true);
-      mChannel.setVibrationPattern(new long[]{200, 300, 200});
       notifManager.createNotificationChannel(mChannel);
     }
 

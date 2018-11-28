@@ -147,14 +147,18 @@ public class ParsePushPluginReceiver extends ParsePushBroadcastReceiver {
     PendingIntent deleteIntent = PendingIntent.getBroadcast(context, deleteIntentRequestCode, dIntent,
         PendingIntent.FLAG_UPDATE_CURRENT);
 
-    int importance = NotificationManager.IMPORTANCE_HIGH;
-    NotificationManager notifManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-    NotificationChannel mChannel = notifManager.getNotificationChannel(DEFAULT_CHANNEL_ID);
 
-    if (mChannel == null) {
-      mChannel = new NotificationChannel(DEFAULT_CHANNEL_ID, DEFAULT_CHANNEL_TITLE, importance);
-      mChannel.enableVibration(true);
-      notifManager.createNotificationChannel(mChannel);
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      int importance = NotificationManager.IMPORTANCE_HIGH;
+      NotificationManager notifManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+      NotificationChannel mChannel = notifManager.getNotificationChannel(DEFAULT_CHANNEL_ID);
+
+      if (mChannel == null) {
+        mChannel = new NotificationChannel(DEFAULT_CHANNEL_ID, DEFAULT_CHANNEL_TITLE, importance);
+        mChannel.enableVibration(true);
+        notifManager.createNotificationChannel(mChannel);
+      }
     }
 
     NotificationCompat.Builder builder = new NotificationCompat.Builder(context, DEFAULT_CHANNEL_ID);
